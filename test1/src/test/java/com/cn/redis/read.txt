@@ -1,0 +1,32 @@
+需要知道的是：
+
+1. StringRedisTemplate继承自RedisTemplate；
+
+2. 从测试结果可以看出 StringRedisTemplate和RedisTemplate所管理的数据是相互独立的，对其中一个的数据进行修改并不会对另一个的数据产生影响。
+
+3. SDR默认采用的序列化策略有两种，一种是String的序列化策略，一种是JDK的序列化策略。
+
+    StringRedisTemplate默认采用的是String的序列化策略，保存的key和value都是采用此策略序列化保存的。
+
+    RedisTemplate默认采用的是JDK的序列化策略，保存的key和value都是采用此策略序列化保存的。
+
+
+四、自己创建RedisTemplate Bean 
+public class RedisTemplate<K, V> extends RedisAccessor implements RedisOperations<K, V>, BeanClassLoaderAware {}
+注意：如果没特殊情况，切勿定义成RedisTemplate<Object, Object>，否则根据里氏替换原则，使用的时候会造成类型错误 。推荐定义成 RedisTemplate<String, Object>。
+
+常见问题：在使用@Autowired注解装配RedisTemplate<String, Object>时由于泛型不匹配会出现如下错误：
+
+Could not autowire. No beans of 'RedisTemplate<String, Object>' type found.
+
+
+解决办法：改用 @Resource 注解（@Autowired根据类型装配Bean，@Resource根据名称进行装配）。
+
+
+
+或者，自己定义一个RedisTemplate<String, Object> Bean，而不再让Spring为我们创建RedisTemplate<Object, Object> Bean。这样即使使用@Autowired注解也可以成功装配RedisTemplate<String, Object> Bean。
+
+
+
+
+
