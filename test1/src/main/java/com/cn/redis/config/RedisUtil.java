@@ -18,6 +18,11 @@ public class RedisUtil {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+
+    public RedisTemplate<String, Object> getRedisTemplate(){
+        return redisTemplate;
+    }
+
     /**
      * 指定缓存失效时间
      *
