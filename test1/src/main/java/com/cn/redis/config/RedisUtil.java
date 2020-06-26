@@ -73,6 +73,28 @@ public class RedisUtil {
     }
 
     /**
+     * 获得过期时间
+     *
+     * @param key 键  不能为null
+     * @param timeUnit 键  返回的单位
+     * @return 时间（秒）返回0代表永久有效
+     */
+    public long getExpire(String key,TimeUnit timeUnit) {
+        return redisTemplate.getExpire(key, timeUnit);
+    }
+
+
+    /**
+     * 设置永久
+     *
+     * @param key 键  不能为null
+     */
+    public Boolean setExpirePre(String key) {
+        return redisTemplate.persist(key);
+    }
+
+
+    /**
      * 判断key是否存在
      *
      * @param key 键
@@ -192,6 +214,46 @@ public class RedisUtil {
     public Object hget(String key, String itme) {
         return redisTemplate.opsForHash().get(key, itme);
     }
+    /**
+     * 向一张Hash表中放入数据 如果不存在就创建
+     *
+     * @param key   键
+     * @param item  项
+     * @param value 值
+     * @return true 成功 false 失败
+     */
+    public boolean hset(String key, String item, Object value) {
+        try {
+            redisTemplate.opsForHash().put(key, item, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 向一张Hash表中放入数据 如果不存在就创建
+     *
+     * @param key   键
+     * @param item  项
+     * @param value 值
+     * @param time
+     * @return
+     */
+    public boolean hset(String key, String item, Object value, long time) {
+        try {
+            redisTemplate.opsForHash().put(key, item, value);
+            if (time > 0) {
+                expire(key, time);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     /**
      * 获取hashkey 对应的所有键值
@@ -241,45 +303,6 @@ public class RedisUtil {
         }
     }
 
-    /**
-     * 向一张Hash表中放入数据 如果不存在就创建
-     *
-     * @param key   键
-     * @param item  项
-     * @param value 值
-     * @return true 成功 false 失败
-     */
-    public boolean hset(String key, String item, Object value) {
-        try {
-            redisTemplate.opsForHash().put(key, item, value);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * 向一张Hash表中放入数据 如果不存在就创建
-     *
-     * @param key   键
-     * @param item  项
-     * @param value 值
-     * @param time
-     * @return
-     */
-    public boolean hset(String key, String item, Object value, long time) {
-        try {
-            redisTemplate.opsForHash().put(key, item, value);
-            if (time > 0) {
-                expire(key, time);
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     /**
      * 删除hash表中的值
@@ -522,25 +545,6 @@ public class RedisUtil {
         }
     }
 
-    /**
-     * 将list放入缓存
-     * @param key 键
-     * @param value 值
-     * @param time 时间(秒)
-     * @return
-     */
-    public boolean lSet(String key, List<Object> value, long time) {
-        try {
-            redisTemplate.opsForList().rightPushAll(key, value);
-            if (time > 0) {
-                expire(key, time);
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
     /**
      * 根据索引修改list中的某条数据
      * @param key 键
